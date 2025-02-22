@@ -70,7 +70,7 @@ app.get("/accept-sos/:id", async (req, res) => {
 })
 
 // Respondent-view
-app.get("/resolve-sos", async (req, res) => {
+app.delete("/resolve-sos", async (req, res) => {
     try {
         res.status(200).json({
             sos: sos
