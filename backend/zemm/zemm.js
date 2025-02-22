@@ -4,6 +4,15 @@ export class ZemmParser {
     }
 
     /**
+     * Retrieve a zemm by UUID.
+     * @param {string} uuid - The UUID of the zemm.
+     * @returns {Object|undefined} The found zemm or undefined if not found.
+     */
+    getZemmByUUID(uuid) {
+        return this.zemms.find(z => z.uuid === uuid);
+    }
+
+    /**
      * Parse ZEMM message header
      * @param {string} zemm - Raw ZEMM message
      * @returns {{section: number, maxSections: number, uuid: string}}
@@ -47,13 +56,23 @@ export class ZemmParser {
         };
     }
 
+
+    generateUUID() {
+        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+        let uuid = '';
+        for (let i = 0; i < 4; i++) {
+            uuid += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+        return uuid;
+    }
+
     /**
      * Parse ZEMM message
      * @param {string} contents - Raw ZEMM message
      * @returns {Object|Array} Parsed ZEMM data or error object
      * @throws {Error} If message is invalid
      */
-    parse(contents) {
+    decode(contents) {
         if (contents.length > 160) {
             throw new Error("Invalid SMS: Message too long");
         }
@@ -84,6 +103,37 @@ export class ZemmParser {
         }
 
         return zemm;
+    }
+
+    /**
+     * Encode parsed data to Zemm-encoded string
+     * @param {{data: Object}} zdata - object content of the data
+     * @returns {String} zemm-encoded array string of the data
+     * @throws {Error} If message is invalid
+     * */
+    encode(zdata) {
+        const kv_sep = "§";
+        const property_sep = "|";
+        const raw = []
+        const MAX_LENGTH = 150
+        const kvPairs = Object.keys(zdata.data)
+            .map(d => `${d}${String.fromCharCode(167)}${zdata.data[d]}`)
+            .join(property_sep);
+        const uuid = zdata.uuid || this.generateUUID();
+
+        let result = [];
+        for (let i = 0; i < kvPairs.length; i += MAX_LENGTH) {
+            result.push(kvPairs.slice(i, i + MAX_LENGTH));
+        }
+
+        result.forEach((entry, idx) => {
+            const header = `${(idx + 1).toString().padStart(3, '0')}${result.length.toString().padStart(3, '0')}${uuid}`;
+            const encoded = `${header}${entry}`;
+            raw.push(encoded)
+        })
+
+
+        return raw;
     }
 
     /**

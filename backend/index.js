@@ -7,19 +7,75 @@ const app = express()
 app.use(bodyParser.json())
 app.use(express.urlencoded({ extended: true }))
 
-// From object to "zemm" protocol format
-app.get("/send", async (req, res) => {
-    // encode json object to zemm for SMS transport
+/**
+ * Information about an SOS distress signal.
+ * @param {string} sender_number - The phone number of the person sending the SOS
+ * @param {string} sender_name - The name of the person sending the SOS
+ * @param {{lat: float, long: float}} location - The geographic location where the SOS was sent from
+ * @param {number} head_count - Number of people involved in the emergency
+ * @param {string} description - Detailed description of the emergency situation
+ * @param {string|Buffer} image - Image data related to the emergency
+ */
+const sos = {}
 
+// requires body: "003003dFGcc1o po libog n po kami d2 sa bacoor cavite saklolo po libog n po kami d2 sa bacoor cavite saklolo po libog n po kami d2 sa bacoor cavite saklolo po l3"
+// Victim-view
+// POST /send-sos req.body: string
+app.post("/send-sos", async (req, res) => {
+    const zemm = new ZemmParser()
+    const decodedData = zemm.decode(req.body.data); // Fixed: req.body instead of res.body
+    // save database
+    sos[decodedData.uuid] = {
+        sender_number: decodedData.data.n || decodedData.data.num || decodedData.data.number || '',
+        sender_name: decodedData.data.n || decodedData.data.name || '',
+        location: {
+            lat: parseFloat(decodedData.data.lat || 0),
+            long: parseFloat(decodedData.data.long || 0)
+        },
+        head_count: parseInt(decodedData.data.hc || 0),
+        description: decodedData.data.d || '',
+    };
     res.status(200).json({
-        "data": ""
+        success: true,
+        uuid: decodedData.uuid
     })
 })
 
-// requires body: "003003dFGcc1o po libog n po kami d2 sa bacoor cavite saklolo po libog n po kami d2 sa bacoor cavite saklolo po libog n po kami d2 sa bacoor cavite saklolo po l3"
-// POST /receive
-app.post("/receive", async (req, res) => {
-    const zemm = new ZemmParser()
-    zemm.parse(res.body.data)
-    // save database
+// Respondent-view
+app.get("/list-sos", async (req, res) => {
+    try {
+        res.status(200).json({
+            sos: sos
+        })
+    } catch (e) {
+        console.error(e)
+    }
+})
+
+// From object to "zemm" protocol format
+// Respondent-view
+app.get("/accept-sos/:id", async (req, res) => {
+    try {
+        const { id } = req.params
+        const zemm = new ZemmParser()
+        const data = zemm.getZemmByUUID(id)
+        const raw = zemm.encode(data)
+
+        res.status(200).json({
+            "raw": raw,
+        })
+    } catch (e) {
+        console.error(e)
+    }
+})
+
+// Respondent-view
+app.get("/resolve-sos", async (req, res) => {
+    try {
+        res.status(200).json({
+            sos: sos
+        })
+    } catch (e) {
+        console.error(e)
+    }
 })
