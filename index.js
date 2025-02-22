@@ -32,7 +32,7 @@ app.post("/send-sos", async (req, res) => {
         sender_number: decodedData.data.n || decodedData.data.num || decodedData.data.number || '',
         sender_name: decodedData.data.n || decodedData.data.name || '',
         lat: parseFloat(decodedData.data.lat || 0),
-        long: parseFloat(decodedData.data.long || 0),
+        lng: parseFloat(decodedData.data.long || decodedData.data.lng || 0),
         head_count: parseInt(decodedData.data.hc || decodedData.data.headCount || 0),
         description: decodedData.data.d || decodedData.data.dsec || '',
         image: decodedData.data.image || decodedData.data.img || '',
