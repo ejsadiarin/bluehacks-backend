@@ -1,6 +1,6 @@
 import bodyParser from 'body-parser'
 import express from 'express'
-import { parseZemm } from './zemm/zemm.js'
+import { ZemmParser } from './zemm/zemm.js'
 
 const app = express()
 
@@ -15,7 +15,8 @@ app.get("/send", async (req, res) => {
 })
 
 // requires body: "003003dFGcc1o po libog n po kami d2 sa bacoor cavite saklolo po libog n po kami d2 sa bacoor cavite saklolo po libog n po kami d2 sa bacoor cavite saklolo po l3"
-// GET
+// POST /receive
 app.post("/receive", async (req, res) => {
-    parseZemm(res.body.data)
+    const zemm = new ZemmParser()
+    zemm.parse(res.body.data)
 })

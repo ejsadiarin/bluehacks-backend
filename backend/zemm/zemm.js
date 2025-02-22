@@ -1,7 +1,7 @@
 /**
  * Class representing a ZemmParser.
  */
-class ZemmParser {
+export class ZemmParser {
     /**
      * Create a ZemmParser instance.
      */
