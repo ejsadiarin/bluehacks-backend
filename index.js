@@ -2,12 +2,13 @@ import bodyParser from 'body-parser'
 import express from 'express'
 import { ZemmParser } from './zemm/zemm.js'
 import cors from 'cors'
-
 const app = express()
 
-app.use(cors())
 app.use(bodyParser.json())
 app.use(express.urlencoded({ extended: true }))
+app.use(cors({
+    origin: "*"
+}))
 
 /**
  * Information about an SOS distress signal.
