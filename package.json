@@ -16,7 +16,7 @@
     "body-parser": "^1.20.3",
     "cors": "^2.8.5",
     "express": "^4.21.2",
-    "macky-sms": "^1.2.3",
+    "macky-sms": "^1.2.4",
     "mongoose": "^8.10.1"
   },
   "devDependencies": {
