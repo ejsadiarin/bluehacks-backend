@@ -11,7 +11,8 @@ app.use(express.urlencoded({ extended: true }))
  * Information about an SOS distress signal.
  * @param {string} sender_number - The phone number of the person sending the SOS
  * @param {string} sender_name - The name of the person sending the SOS
- * @param {{lat: float, long: float}} location - The geographic location where the SOS was sent from
+ * @param {float} lat - The latitude of location
+ * @param {float} long - The longitude of location
  * @param {number} head_count - Number of people involved in the emergency
  * @param {string} description - Detailed description of the emergency situation
  * @param {string|Buffer} image - Image data related to the emergency
@@ -28,12 +29,11 @@ app.post("/send-sos", async (req, res) => {
     sos[decodedData.uuid] = {
         sender_number: decodedData.data.n || decodedData.data.num || decodedData.data.number || '',
         sender_name: decodedData.data.n || decodedData.data.name || '',
-        location: {
-            lat: parseFloat(decodedData.data.lat || 0),
-            long: parseFloat(decodedData.data.long || 0)
-        },
-        head_count: parseInt(decodedData.data.hc || 0),
-        description: decodedData.data.d || '',
+        lat: parseFloat(decodedData.data.lat || 0),
+        long: parseFloat(decodedData.data.long || 0),
+        head_count: parseInt(decodedData.data.hc || decodedData.data.headCount || 0),
+        description: decodedData.data.d || decodedData.data.dsec || '',
+        image: decodedData.data.image || decodedData.data.img || '',
     };
     res.status(200).json({
         success: true,
