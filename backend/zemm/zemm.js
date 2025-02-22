@@ -1,60 +1,34 @@
-/**
- * Class representing a ZemmParser.
- */
 export class ZemmParser {
-    /**
-     * Create a ZemmParser instance.
-     */
     constructor() {
-        /**
-         * @type {Array<Object>} List of active zemms.
-         */
         this.zemms = [];
     }
 
     /**
-     * Get the active zemms.
-     * @returns {Array<Object>} The list of active zemms.
+     * Parse ZEMM message header
+     * @param {string} zemm - Raw ZEMM message
+     * @returns {{section: number, maxSections: number, uuid: string}}
      */
-    get getActiveZemms() {
-        return this.zemms;
-    }
-
-    /**
-     * Retrieve a zemm by UUID.
-     * @param {string} uuid - The UUID of the zemm.
-     * @returns {Object|undefined} The found zemm or undefined if not found.
-     */
-    getZemmByUUID(uuid) {
-        return this.zemms.find(z => z.uuid === uuid);
-    }
-
-    /**
-     * Parse the header of a zemm.
-     * @param {string} zemm - The zemm string.
-     * @returns {Object} The parsed header containing section, maxSections, and UUID.
-     */
-    parseHeader(zemm) {
+    parseZemmHeader(zemm) {
         const raw = zemm.slice(0, 10);
-        return {
-            section: parseInt(raw.slice(0, 3)),
-            maxSections: parseInt(raw.slice(4, 6)),
-            uuid: raw.slice(6, 10)
-        };
+        const section = parseInt(raw.slice(0, 3));
+        const maxSections = parseInt(raw.slice(4, 6));
+        const uuid = raw.slice(6, 10);
+
+        return { section, maxSections, uuid };
     }
 
     /**
-     * Parse key-value pairs from a zemm string.
-     * @param {string} zemm - The zemm string.
-     * @returns {Object} The parsed key-value pairs.
+     * Parse ZEMM key-value pairs
+     * @param {string} zemm - Raw ZEMM message
+     * @returns {Object} Parsed key-value pairs
      */
-    parseKeyValue(zemm) {
+    parseZemmKeyValue(zemm) {
         const kv = zemm.slice(10);
-        const kvPairs = kv.split('|');
+        const kv_raw = kv.split('|');
         const zemmJson = {};
 
-        kvPairs.forEach(kva => {
-            const [key, value] = kva.split('ง');
+        kv_raw.forEach((kva) => {
+            const [key, value] = kva.split('ยง');
             if (key) zemmJson[key] = value;
         });
 
@@ -62,37 +36,34 @@ export class ZemmParser {
     }
 
     /**
-     * Parse a zemm section.
-     * @param {string} contents - The zemm section contents.
-     * @returns {Object} The parsed section containing headers and data.
+     * Parse complete ZEMM section
+     * @param {string} contents - Raw ZEMM message
+     * @returns {{headers: Object, data: Object}}
      */
-    parseSection(contents) {
+    zemmSectionParser(contents) {
         return {
-            headers: this.parseHeader(contents),
-            data: this.parseKeyValue(contents)
+            headers: this.parseZemmHeader(contents),
+            data: this.parseZemmKeyValue(contents)
         };
     }
 
     /**
-     * Parse a zemm message.
-     * @param {string} contents - The zemm message contents.
-     * @returns {Object} The parsed zemm or an error object.
+     * Parse ZEMM message
+     * @param {string} contents - Raw ZEMM message
+     * @returns {Object|Array} Parsed ZEMM data or error object
+     * @throws {Error} If message is invalid
      */
     parse(contents) {
         if (contents.length > 160) {
-            return { error: "Invalid sms" };
+            throw new Error("Invalid SMS: Message too long");
         }
 
-        const headers = this.parseHeader(contents);
-        let zemm = this.zemms.find(z => z.uuid === headers.uuid);
+        const headers = this.parseZemmHeader(contents);
+        let zemm = this.zemms.find((z) => z.uuid === headers.uuid);
 
         if (!zemm) {
-            this.zemms.push(headers);
-            return this.parse(contents);
-        }
-
-        if (!zemm.raw) {
-            zemm.raw = [];
+            zemm = { ...headers, raw: [] };
+            this.zemms.push(zemm);
         }
 
         if (zemm.raw.length !== zemm.maxSections) {
@@ -101,18 +72,24 @@ export class ZemmParser {
         }
 
         if (zemm.section === zemm.maxSections) {
-            zemm.raw.sort((a, b) => this.parseHeader(a).section - this.parseHeader(b).section);
+            zemm.raw.sort((a, b) =>
+                this.parseZemmHeader(a).section - this.parseZemmHeader(b).section
+            );
             const zemmString = zemm.raw.join("");
-
-            zemm.data = this.parseSection(zemmString).data;
+            zemm.data = this.zemmSectionParser(zemmString).data;
             zemm.done = true;
-        }
 
-        if (zemm.done) {
-            this.zemms.splice(this.zemms.indexOf(zemm), 1);
-            return zemm;
+            // Remove completed ZEMM from array and return it
+            return this.zemms.splice(this.zemms.indexOf(zemm), 1)[0];
         }
 
         return zemm;
+    }
+
+    /**
+     * Clear all stored ZEMM messages
+     */
+    clear() {
+        this.zemms = [];
     }
 }

@@ -9,6 +9,8 @@ app.use(express.urlencoded({ extended: true }))
 
 // From object to "zemm" protocol format
 app.get("/send", async (req, res) => {
+    // encode json object to zemm for SMS transport
+
     res.status(200).json({
         "data": ""
     })
@@ -19,4 +21,5 @@ app.get("/send", async (req, res) => {
 app.post("/receive", async (req, res) => {
     const zemm = new ZemmParser()
     zemm.parse(res.body.data)
+    // save database
 })
