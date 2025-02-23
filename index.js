@@ -1,15 +1,12 @@
 import bodyParser from 'body-parser'
 import express from 'express'
 import { ZemmParser } from './zemm/zemm.js'
-import cors from 'cors'
+const cors = require('cors')
 const app = express()
 
 app.use(bodyParser.json())
 app.use(express.urlencoded({ extended: true }))
-app.use(cors({
-    origin: ["http://localhost:5173", "http://localhost:3000"],
-    credentials: true,
-}))
+app.use(cors())
 
 /**
  * Information about an SOS distress signal.
