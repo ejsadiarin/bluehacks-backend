@@ -78,7 +78,10 @@ app.post("/list-sos", async (req, res) => {
         console.log(values)
 
         res.status(200).json({
-            sos: arr
+            sos: arr,
+            uuids: uuids,
+            values: values,
+            total: arr.length
         })
     } catch (e) {
         console.error(e)
