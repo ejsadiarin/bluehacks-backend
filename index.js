@@ -26,7 +26,7 @@ const sos = {}
 app.post("/send-sos", async (req, res) => {
     try {
         const zemm = new ZemmParser()
-        const decodedData = zemm.decode(req.body)
+        const decodedData = zemm.decode(req.body.sms)
 
         if (!decodedData || !decodedData.uuid) {
             return res.status(400).json({
