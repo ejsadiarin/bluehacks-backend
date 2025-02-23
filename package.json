@@ -17,7 +17,8 @@
     "cors": "^2.8.5",
     "express": "^4.21.2",
     "macky-sms": "^1.2.4",
-    "mongoose": "^8.10.1"
+    "mongoose": "^8.10.1",
+    "zemm-protocol": "^1.0.1"
   },
   "devDependencies": {
     "nodemon": "^3.1.9"

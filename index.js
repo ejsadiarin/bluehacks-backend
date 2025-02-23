@@ -70,11 +70,11 @@ app.post("/list-sos", async (req, res) => {
         console.log(arr)
 
         console.log("----UUIDs:----")
-        const uuids = arrayOfObjects.map(obj => Object.keys(obj)[0]);
+        const uuids = arr.map(obj => Object.keys(obj)[0]);
         console.log(uuids)
 
         console.log("----VALUES:----")
-        const values = arrayOfObjects.map(obj => Object.values(obj)[0]);
+        const values = arr.map(obj => Object.values(obj)[0]);
         console.log(values)
 
         res.status(200).json({
