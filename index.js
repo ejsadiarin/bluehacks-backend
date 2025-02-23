@@ -63,10 +63,20 @@ app.post("/send-sos", async (req, res) => {
 // Respondent-view
 app.post("/list-sos", async (req, res) => {
     try {
+        console.log("----ARRAY OF OBJECTS:----")
         const arr = Object.entries(sos).map(([uuid, data]) => ({
             [uuid]: data
         }));
         console.log(arr)
+
+        console.log("----UUIDs:----")
+        const uuids = arrayOfObjects.map(obj => Object.keys(obj)[0]);
+        console.log(uuids)
+
+        console.log("----VALUES:----")
+        const values = arrayOfObjects.map(obj => Object.values(obj)[0]);
+        console.log(values)
+
         res.status(200).json({
             sos: arr
         })
