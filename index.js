@@ -63,8 +63,12 @@ app.post("/send-sos", async (req, res) => {
 // Respondent-view
 app.post("/list-sos", async (req, res) => {
     try {
+        const arrayFormatSOS = Object.entries(sos).map((([uuid, data], index) => ({
+            [index]: { [uuid]: data }
+        })));
+        console.log(arrayFormatSOS)
         res.status(200).json({
-            sos: sos
+            sos: arrayFormatSOS
         })
     } catch (e) {
         console.error(e)
