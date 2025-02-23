@@ -61,7 +61,7 @@ app.post("/send-sos", async (req, res) => {
 })
 
 // Respondent-view
-app.get("/list-sos", async (req, res) => {
+app.post("/list-sos", async (req, res) => {
     try {
         res.status(200).json({
             sos: sos
@@ -73,7 +73,7 @@ app.get("/list-sos", async (req, res) => {
 
 // From object to "zemm" protocol format
 // Respondent-view
-app.get("/accept-sos/:id", async (req, res) => {
+app.post("/accept-sos/:id", async (req, res) => {
     try {
         const { id } = req.params
         const zemm = new ZemmParser()
@@ -89,7 +89,7 @@ app.get("/accept-sos/:id", async (req, res) => {
 })
 
 // Respondent-view
-app.delete("/resolve-sos", async (req, res) => {
+app.post("/resolve-sos", async (req, res) => {
     try {
         res.status(200).json({
             sos: sos
