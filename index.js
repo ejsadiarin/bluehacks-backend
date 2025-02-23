@@ -46,6 +46,7 @@ app.post("/send-sos", async (req, res) => {
             timestamp: Date.now()
         }
 
+        console.log(sos)
         res.status(200).json({
             success: true,
             uuid: decodedData.uuid
