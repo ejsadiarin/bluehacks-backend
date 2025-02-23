@@ -24,22 +24,39 @@ const sos = {}
 // Victim-view
 // POST /send-sos req.body: string
 app.post("/send-sos", async (req, res) => {
-    const zemm = new ZemmParser()
-    const decodedData = zemm.decode(req.body.data); // Fixed: req.body instead of res.body
-    // save database
-    sos[decodedData.uuid] = {
-        sender_number: decodedData.data.n || decodedData.data.num || decodedData.data.number || '',
-        sender_name: decodedData.data.n || decodedData.data.name || '',
-        lat: parseFloat(decodedData.data.lat || 0),
-        lng: parseFloat(decodedData.data.long || decodedData.data.lng || 0),
-        head_count: parseInt(decodedData.data.hc || decodedData.data.headCount || 0),
-        description: decodedData.data.d || decodedData.data.dsec || '',
-        image: decodedData.data.image || decodedData.data.img || '',
-    };
-    res.status(200).json({
-        success: true,
-        uuid: decodedData.uuid
-    })
+    try {
+        const zemm = new ZemmParser()
+        const decodedData = zemm.decode(req.body)
+
+        if (!decodedData || !decodedData.uuid) {
+            return res.status(400).json({
+                success: false,
+                error: 'Invalid SOS data'
+            })
+        }
+
+        sos.set(decodedData.uuid, {
+            sender_number: decodedData.data.n || decodedData.data.num || decodedData.data.number || '',
+            sender_name: decodedData.data.n || decodedData.data.name || '',
+            lat: parseFloat(decodedData.data.lat || 0),
+            lng: parseFloat(decodedData.data.long || decodedData.data.lng || 0),
+            head_count: parseInt(decodedData.data.hc || decodedData.data.headCount || 0),
+            description: decodedData.data.d || decodedData.data.dsec || '',
+            image: decodedData.data.image || decodedData.data.img || '',
+            timestamp: Date.now()
+        })
+
+        res.status(200).json({
+            success: true,
+            uuid: decodedData.uuid
+        })
+    } catch (error) {
+        console.error('Error processing SOS:', error)
+        res.status(500).json({
+            success: false,
+            error: 'Internal server error'
+        })
+    }
 })
 
 // Respondent-view
