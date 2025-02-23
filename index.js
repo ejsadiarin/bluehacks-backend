@@ -35,7 +35,7 @@ app.post("/send-sos", async (req, res) => {
             })
         }
 
-        sos.set(decodedData.uuid, {
+        sos[decodedData.uuid] = {
             sender_number: decodedData.data.n || decodedData.data.num || decodedData.data.number || '',
             sender_name: decodedData.data.n || decodedData.data.name || '',
             lat: parseFloat(decodedData.data.lat || 0),
@@ -44,7 +44,7 @@ app.post("/send-sos", async (req, res) => {
             description: decodedData.data.d || decodedData.data.dsec || '',
             image: decodedData.data.image || decodedData.data.img || '',
             timestamp: Date.now()
-        })
+        }
 
         res.status(200).json({
             success: true,
